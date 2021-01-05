@@ -70,7 +70,7 @@ const ButtonContainer = styled.div`
   z-index: 1;
 `;
 
-const reloadTime = 5; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
+const reloadTime = 60; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
 
 //Container for the interactable part of the application
 function Main() {
