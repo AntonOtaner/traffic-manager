@@ -70,7 +70,7 @@ const ButtonContainer = styled.div`
   z-index: 1;
 `;
 
-const reloadTime = 60; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
+const reloadTime = 5; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
 
 //Container for the interactable part of the application
 function Main() {
@@ -92,7 +92,7 @@ function Main() {
   const [defaultZoom, setDefaultZoom] = useState(); //default map zoom based on bounds
 
   const mapContainerRef = useRef(); //Map Ref to compute width and height
-  const intervalId = useRef(null); //setInterval ID of checkInternet in getShipData (used to cancel interval) (useRef since state does not need to update with it)
+  const intervalId = useRef(); //setInterval ID of checkInternet in getShipData (used to cancel interval) (useRef since state does not need to update with it)
 
   //Check for internet connection
   const checkInternet = useCallback(async () => {
