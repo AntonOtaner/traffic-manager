@@ -1,5 +1,8 @@
+//Packages
+import React from "react";
 import styled, { keyframes } from "styled-components";
 
+//Styles
 const StyledSVG = styled.svg`
   overflow: visible;
 
@@ -19,6 +22,7 @@ const StyledPath = styled.path`
     infinite;
 `;
 
+//Seperate keyframes so it is independant for each component
 function dash(diagonal, direction) {
   return keyframes`
     100% {
@@ -27,6 +31,7 @@ function dash(diagonal, direction) {
   `;
 }
 
+//Depending on diagonal and direction, get offset
 function getStrokeOffset(diagonal, direction) {
   //RULES:
   //If diagonal is type 1 and direction is type 1, then +
@@ -45,6 +50,7 @@ function getStrokeOffset(diagonal, direction) {
   }
 }
 
+//Connection component between to objects on a map
 function Connection({ width, height, diagonal, direction, ...rest }) {
   return (
     <StyledSVG
@@ -74,4 +80,5 @@ function Connection({ width, height, diagonal, direction, ...rest }) {
   );
 }
 
-export default Connection;
+//Does not need to update everytime the map changes
+export default React.memo(Connection);

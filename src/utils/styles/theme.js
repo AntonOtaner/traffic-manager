@@ -19,6 +19,7 @@ export const theme = {
   },
 };
 
+//Google maps theme data
 export const googleMapsTheme = [
   {
     elementType: "geometry",

@@ -1,5 +1,7 @@
+//Packages
 import styled from "styled-components";
 
+//Styles
 const SquareButton = styled.button`
   font-size: 1.4rem;
   width: 40px;
@@ -25,6 +27,7 @@ const SquareButton = styled.button`
   }
 `;
 
+//Button Component (currently for zoom and center buttons)
 function Button({ children, ...rest }) {
   return <SquareButton {...rest}>{children}</SquareButton>;
 }

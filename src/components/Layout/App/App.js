@@ -1,8 +1,11 @@
+//Packages
 import styled, { ThemeProvider } from "styled-components";
 
+//Styles
 import GlobalStyles from "../../../utils/styles/global";
 import { theme } from "../../../utils/styles/theme";
 
+//Components
 import Main from "../../../routes/Main";
 
 //General wrapper around application
@@ -17,6 +20,7 @@ const Wrapper = styled.div`
   transition: color 0.2s ease-out, background 0.2s ease-out;
 `;
 
+//App is the main container for the whole web application
 function App() {
   return (
     <ThemeProvider theme={theme}>

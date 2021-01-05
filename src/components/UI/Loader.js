@@ -1,8 +1,11 @@
+//Packages
 import styled from "styled-components";
 
+//Options
 const size = 30;
 const time = 1.3;
 
+//Styles
 const StyledLoader = styled.div`
         display: inline-block;
         position: relative;
@@ -37,6 +40,7 @@ const StyledLoader = styled.div`
     
 `;
 
+//Loading component shown in Update component at top right of the screen
 function Loader() {
   return (
     <StyledLoader>

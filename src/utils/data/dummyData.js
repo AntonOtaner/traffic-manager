@@ -1,3 +1,4 @@
+//Dummy data in the possible form of the JSON from the API
 export const dummyData = [
   {
     id: "1235236", //mmsi
@@ -25,7 +26,7 @@ export const dummyData = [
     },
     connections: {
       receiving: ["6548912"],
-      providing: [],
+      providing: ["1235236"],
     },
   },
   {
@@ -39,7 +40,7 @@ export const dummyData = [
     },
     connections: {
       receiving: ["5412354"],
-      providing: [],
+      providing: ["2638375"],
     },
   },
   {

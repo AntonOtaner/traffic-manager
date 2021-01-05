@@ -1,6 +1,8 @@
-//Package
+//Packages
+import React from "react";
 import styled from "styled-components";
 
+//Styles
 const StyledCircle = styled.img`
   position: absolute;
   transform: translate(-50%, -50%);
@@ -8,16 +10,16 @@ const StyledCircle = styled.img`
 
   width: ${({ width }) => width && width};
   height: ${({ height }) => height && height};
-  background-color: ${({ connections }) =>
-    connections.receiving.length + connections.providing.length
-      ? "var(--white)"
-      : "var(--danger)"};
+  background-color: ${({ isConnected }) =>
+    isConnected ? "var(--white)" : "var(--danger)"};
   opacity: ${({ isSelected }) => (isSelected ? "20%" : "7.5%")};
   border-radius: 50%;
 `;
 
+//Circle component keeping accurate size
 function Circle({ ...rest }) {
   return <StyledCircle {...rest} />;
 }
 
-export default Circle;
+//When map updates, do not need to necessarly update the component
+export default React.memo(Circle);

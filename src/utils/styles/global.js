@@ -27,7 +27,7 @@ export default createGlobalStyle`
       }
     }
 
-    // Scrollbar
+    // Scrollbar (mainly for the info panel)
     /* width */
     ::-webkit-scrollbar {
       width: 10px;
@@ -37,11 +37,6 @@ export default createGlobalStyle`
     ::-webkit-scrollbar-thumb {
       background: var(--text);
       border-radius: 5px;
-    }
-
-    /* Handle on hover */
-    ::-webkit-scrollbar-thumb:hover {
-      filter: brightness(85%);
     }
 
 `;

@@ -4,7 +4,8 @@ import GoogleMapReact from "google-map-react";
 //Theme
 import { googleMapsTheme } from "../../utils/styles/theme";
 
-function Map({ defaultZoom, children, ...rest }) {
+//Map component holding ships and base stations
+function Map({ children, ...rest }) {
   return (
     <GoogleMapReact
       bootstrapURLKeys={{

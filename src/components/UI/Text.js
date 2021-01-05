@@ -1,3 +1,4 @@
+//Packages
 import styled from "styled-components";
 
 //Title (mutlipe h2)
@@ -36,6 +37,7 @@ const StyledBodyText = styled.p`
   text-align: ${({ align }) => align && align};
 `;
 
+//Text Component
 const Text = (props) => {
   if (props.type === "title") {
     return <StyledTitle {...props}>{props.children}</StyledTitle>;

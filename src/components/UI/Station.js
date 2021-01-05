@@ -1,8 +1,11 @@
-//Package
+//Packages
+import React from "react";
 import styled from "styled-components";
 
+//Options
 const size = 40;
 
+//Styles
 const Container = styled.div`
   width: ${size}px;
   height: ${size}px;
@@ -34,13 +37,16 @@ const Inner = styled.div`
   opacity: 100%;
 `;
 
+//Base Station component on map
 function Station({ ...rest }) {
+  //{...rest} is everywhere because data from clicked item will be processed by openInfoContainer function
   return (
     <Container {...rest}>
-      <Outer />
-      <Inner />
+      <Outer {...rest} />
+      <Inner {...rest} />
     </Container>
   );
 }
 
-export default Station;
+//Does not need to update everytime the map changes
+export default React.memo(Station);
