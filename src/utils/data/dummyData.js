@@ -6,14 +6,14 @@ export const dummyData = [
     speed: 40, //in knots
     direction: 352, //in angles
     position: {
-      lat: 40.75,
-      lng: -69.55,
+      lat: 40.9,
+      lng: -69.35,
     },
     connections: {
       receiving: ["2638375"],
       providing: [],
     },
-    isCenter: false, //extra optional tag
+    isCenter: true, //extra optional tag
   },
   {
     id: "2638375",

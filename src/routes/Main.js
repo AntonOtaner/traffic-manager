@@ -70,6 +70,14 @@ const ButtonContainer = styled.div`
   z-index: 1;
 `;
 
+//TODO:
+//Own ship
+//grid line (long / lat)
+//Offline (load things offline, show things offline)
+//https://www.naturalearthdata.com/downloads/
+//Readme
+//Textfield (readme add for change of data)
+
 const reloadTime = 60; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
 
 //Container for the interactable part of the application

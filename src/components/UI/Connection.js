@@ -18,7 +18,9 @@ const StyledPath = styled.path`
   stroke-width: 2;
   transition: all 0.4s ease;
 
-  animation: ${({ diagonal, direction }) => dash(diagonal, direction)} 5s linear
+  //no animation as direction is uncertain
+  //animation: ${({ diagonal, direction }) =>
+    dash(diagonal, direction)} 5s linear
     infinite;
 `;
 
