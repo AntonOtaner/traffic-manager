@@ -51,14 +51,15 @@ function Info({ open, selectedData, close }) {
   //open: boolen that is true if panel is open
   //selectedData: object of data of selected data, empty object when nothing selected
   //close: function to run when panel is closed
+
+  //capitalized type (ship or land-tms)
+  const styledType =
+    selectedData.type?.charAt(0).toUpperCase() + selectedData.type?.slice(1);
+
   return (
     <Container isOpen={open}>
       <Header>
-        <Text type="title">
-          {selectedData.type?.charAt(0).toUpperCase() +
-            selectedData.type?.slice(1)}{" "}
-          Information
-        </Text>
+        <Text type="title">{styledType} Information</Text>
         <Button empty onClick={close}>
           <FontAwesomeIcon icon={faTimes} />
         </Button>
@@ -69,12 +70,11 @@ function Info({ open, selectedData, close }) {
             General
           </Text>
           <Text type="bold" margin="10px 0 5px">
-            {selectedData.type?.charAt(0).toUpperCase() +
-              selectedData.type?.slice(1)}{" "}
-            ID
+            {styledType} ID
           </Text>
           <Text type="body" margin="5px 0">
-            {selectedData.id}
+            {selectedData.id}{" "}
+            {selectedData.isCenter && `(Own ${styledType.toString()})`}
           </Text>
         </Block>
         <StyledHr />
