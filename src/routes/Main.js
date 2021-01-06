@@ -71,7 +71,6 @@ const ButtonContainer = styled.div`
 `;
 
 //TODO:
-//Own ship
 //grid line (long / lat)
 //Offline (load things offline, show things offline)
 //https://www.naturalearthdata.com/downloads/

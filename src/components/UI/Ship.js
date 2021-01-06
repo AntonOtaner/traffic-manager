@@ -10,7 +10,9 @@ import ShipRed from "../../assets/images/ship-red.svg";
 const StyledShip = styled.img`
   position: absolute;
   transform: translate(-50%, -50%)
-    ${({ direction }) => direction >= 180 && "scaleX(-1)"}; //Point left or right depending on direction
+    //Point ship in proper direction and flip vertically depending on direction
+    ${({ direction }) => direction && `rotate(${-90 + direction}deg)`}
+    ${({ direction }) => direction >= 180 && `scaleY(-1)`};
   transition: all 0.4s ease;
 
   width: 40px;
