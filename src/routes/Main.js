@@ -20,6 +20,7 @@ import Connection from "../components/UI/Connection";
 import Info from "../components/Sections/Info";
 import Source from "../components/Sections/Source";
 import Update from "../components/Sections/Update";
+import Settings from "../components/Sections/Settings";
 
 //Data
 import { dummyData } from "../utils/data/dummyData";
@@ -71,13 +72,17 @@ const ButtonContainer = styled.div`
 `;
 
 //TODO:
-//grid line (long / lat)
-//Offline (load things offline, show things offline)
-//https://www.naturalearthdata.com/downloads/
-//Readme
-//Textfield (readme add for change of data)
+//UI in app
 
-const reloadTime = 60; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
+//Readme
+//grid line (long / lat) instead of offline map
+//offline map
+//Offline (load things offline, show things offline)
+//Textfield (readme add for change of data)
+//Rewind system
+//Timestamps
+
+const reloadTime = 5; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
 
 //Container for the interactable part of the application
 function Main() {
@@ -585,6 +590,7 @@ function Main() {
                           shipData[item].connections.receiving.length +
                             shipData[item].connections.providing.length
                         )}
+                        isCenter={shipData[item].isCenter}
                         isSelected={selectedData.id === item}
                         data-id={item}
                         key={`ship-${shipData[item].id}`}
@@ -613,6 +619,7 @@ function Main() {
                             shipData[item].connections.receiving.length +
                               shipData[item].connections.providing.length
                           )}
+                          isCenter={shipData[item].isCenter}
                           isSelected={selectedData.id === item}
                           key={`radius-${rad}-${shipData[item].id}`}
                           {...shipData[item].position}
@@ -629,6 +636,10 @@ function Main() {
                         height={item.height}
                         diagonal={item.diagonal}
                         direction={item.direction}
+                        isCenter={
+                          shipData[item.from].isCenter ||
+                          shipData[item.to].isCenter
+                        }
                         key={`connection-${item.from}-${item.to}`}
                         {...item.center}
                       />
@@ -638,6 +649,9 @@ function Main() {
             </>
           )}
       </MapContainer>
+
+      {/* SETTINGS SECTION */}
+      <Settings />
 
       {/* INFO SECTION */}
       <Info open={infoOpen} selectedData={selectedData} close={closeInfo} />

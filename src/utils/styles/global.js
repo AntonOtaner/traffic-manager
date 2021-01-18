@@ -8,8 +8,9 @@ export default createGlobalStyle`
       // Important colors
       --border: ${(props) => props.theme.colors.blue};
       --danger: ${(props) => props.theme.colors.red};
+      --success: ${(props) => props.theme.colors.green};
       //Text
-      --text: ${(props) => props.theme.colors.green};
+      --text: ${(props) => props.theme.colors.navyGreen};
       //Shades
       --white: ${(props) => props.theme.colors.white};
       //Background

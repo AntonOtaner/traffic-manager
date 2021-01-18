@@ -10,8 +10,13 @@ const StyledCircle = styled.img`
 
   width: ${({ width }) => width && width};
   height: ${({ height }) => height && height};
-  background-color: ${({ isConnected }) =>
-    isConnected ? "var(--white)" : "var(--danger)"};
+  background-color: ${({ isConnected, isCenter }) =>
+    isCenter
+      ? "var(--success)"
+      : isConnected
+      ? "var(--white)"
+      : "var(--danger)"};
+
   opacity: ${({ isSelected }) => (isSelected ? "20%" : "7.5%")};
   border-radius: 50%;
 `;

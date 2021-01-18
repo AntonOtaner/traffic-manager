@@ -4,7 +4,8 @@ export const theme = {
     red: "#FF0000",
     darkBlue: "#0f1725",
     blue: "#0d3e57",
-    green: "#64918F",
+    navyGreen: "#64918F",
+    green: "#2EFF7E",
     white: "#fff",
   },
   mediaQueries: {

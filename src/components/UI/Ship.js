@@ -5,6 +5,7 @@ import styled from "styled-components";
 //Images
 import ShipWhite from "../../assets/images/ship-white.svg";
 import ShipRed from "../../assets/images/ship-red.svg";
+import ShipGreen from "../../assets/images/ship-green.svg";
 
 //Styles
 const StyledShip = styled.img`
@@ -22,10 +23,18 @@ const StyledShip = styled.img`
 `;
 
 //Ship component on map
-function Ship({ isConnected, ...rest }) {
-  return (
-    <StyledShip alt="Ship" src={isConnected ? ShipWhite : ShipRed} {...rest} />
-  );
+function Ship({ isConnected, isCenter, ...rest }) {
+  //Determine color of ship
+  let shipImage = "";
+  if (isCenter) {
+    shipImage = ShipGreen;
+  } else if (isConnected) {
+    shipImage = ShipWhite;
+  } else {
+    shipImage = ShipRed;
+  }
+
+  return <StyledShip alt="Ship" src={shipImage} {...rest} />;
 }
 
 //Does not need tp update every time the map changes

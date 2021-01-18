@@ -4,7 +4,7 @@ export const dummyData = [
     id: "1235236", //mmsi
     type: "ship",
     speed: 40, //in knots
-    direction: 352, //in angles
+    direction: 278, //in angles
     position: {
       lat: 40.9,
       lng: -69.35,
@@ -59,7 +59,7 @@ export const dummyData = [
     id: "8965124",
     type: "ship",
     speed: 20, //in knots
-    direction: 90,
+    direction: 258,
     position: {
       lat: 41.6,
       lng: -67.9258,

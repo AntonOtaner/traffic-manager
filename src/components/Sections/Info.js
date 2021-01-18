@@ -151,12 +151,6 @@ function Info({ open, selectedData, close }) {
                   .replace(/,/g, ", ")
               : "None"}
           </Text>
-          <Text type="bold" margin="10px 0 5px">
-            Is Center
-          </Text>
-          <Text type="body" margin="5px 0">
-            {selectedData.isCenter ? "Yes" : "No"}
-          </Text>
         </Block>
       </Body>
     </Container>
