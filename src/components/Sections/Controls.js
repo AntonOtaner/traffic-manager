@@ -2,7 +2,16 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCog, faTimes } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCog,
+  faTimes,
+  faPlay,
+  faPause,
+  faStepForward,
+  faStepBackward,
+  faFastForward,
+  faFastBackward,
+} from "@fortawesome/free-solid-svg-icons";
 
 //Components
 import Text from "../UI/Text";
@@ -74,6 +83,29 @@ const PlaybackContainer = styled.div`
   margin-top: 5px;
 `;
 
+const Slider = styled.input`
+  appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 5px;
+  background: var(--border);
+  outline: none;
+
+  &::-webkit-slider-thumb {
+    appearance: none;
+    height: 15px;
+    width: 15px;
+    border-radius: 50%;
+    background: var(--text);
+    cursor: pointer;
+  }
+`;
+
+const PlaybackButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 //Whole Playback system
 
 //Information with project name at the bottom right of the screen
@@ -116,9 +148,27 @@ function Controls() {
               Playback
             </Text>
             <PlaybackContainer id="playback">
-              {/* Bar */}
-              {/* Extra label */}
-              {/* Control buttons */}
+              <Slider type="range" min="1" max="5" />
+              <Text type="other" margin="5px 0 10px">
+                Current time:
+              </Text>
+              <PlaybackButtonContainer>
+                <Button size="33px" margin="0 5px" square fill>
+                  <FontAwesomeIcon icon={faFastBackward} />
+                </Button>
+                <Button size="33px" margin="0 5px" square fill>
+                  <FontAwesomeIcon icon={faStepBackward} />
+                </Button>
+                <Button size="33px" margin="0 5px" square fill>
+                  <FontAwesomeIcon icon={faPause} />
+                </Button>
+                <Button size="33px" margin="0 5px" square fill>
+                  <FontAwesomeIcon icon={faStepForward} />
+                </Button>
+                <Button size="33px" margin="0 5px" square fill>
+                  <FontAwesomeIcon icon={faFastForward} />
+                </Button>
+              </PlaybackButtonContainer>
             </PlaybackContainer>
           </Block>
         </Body>

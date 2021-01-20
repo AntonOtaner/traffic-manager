@@ -27,10 +27,10 @@ const NormalButton = styled.button`
 `;
 
 const SquareButton = styled(NormalButton)`
-  font-size: 1.4rem;
-  width: 40px;
-  height: 40px;
-  line-height: 40px;
+  font-size: ${({ size }) => (size ? `${(size * 1.4) / 40}rem` : "1.4rem")};
+  width: ${({ size }) => (size ? size : "40px")};
+  height: ${({ size }) => (size ? size : "40px")};
+  line-height: ${({ size }) => (size ? size : "40px")};
   border: none;
   background-color: ${({ fill }) => (fill ? "var(--border)" : "transparent")};
 `;

@@ -40,8 +40,17 @@ const StyledBodyText = styled.p`
 //General Text
 const StyledLabel = styled.label`
   font-weight: 400;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text);
+  margin: ${({ margin }) => margin && margin};
+  text-align: ${({ align }) => align && align};
+`;
+
+//General Text
+const StyledOtherText = styled.p`
+  font-weight: 400;
+  font-size: ${({ size }) => (size ? size : "0.8rem")};
+  color: ${({ color }) => (color ? color : "var(--text)")};
   margin: ${({ margin }) => margin && margin};
   text-align: ${({ align }) => align && align};
 `;
@@ -58,6 +67,8 @@ const Text = (props) => {
     return <StyledBodyText {...props}>{props.children}</StyledBodyText>;
   } else if (props.type === "label") {
     return <StyledLabel {...props}>{props.children}</StyledLabel>;
+  } else if (props.type === "other") {
+    return <StyledOtherText {...props}>{props.children}</StyledOtherText>;
   } else {
     return <StyledBodyText {...props}>{props.children}</StyledBodyText>;
   }
