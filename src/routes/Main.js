@@ -20,7 +20,7 @@ import Connection from "../components/UI/Connection";
 import Info from "../components/Sections/Info";
 import Source from "../components/Sections/Source";
 import Update from "../components/Sections/Update";
-import Settings from "../components/Sections/Settings";
+import Controls from "../components/Sections/Controls";
 
 //Data
 import { dummyData } from "../utils/data/dummyData";
@@ -31,9 +31,10 @@ import { measure } from "../utils/helper/helper";
 
 //Styles for general component
 const Container = styled.div`
+  position: relative;
   display: flex;
   flex: 1;
-  padding: 100px 50px;
+  padding: 100px 70px;
 `;
 
 //Styles for map
@@ -527,6 +528,8 @@ function Main() {
     return (
       <ButtonContainer>
         <Button
+          square
+          fill
           margin="5px 0"
           onClick={() => {
             //Max zoom
@@ -536,6 +539,8 @@ function Main() {
           <FontAwesomeIcon icon={faPlus} />
         </Button>
         <Button
+          square
+          fill
           margin="5px 0"
           onClick={() => {
             //Min zoom
@@ -545,6 +550,8 @@ function Main() {
           <FontAwesomeIcon icon={faMinus} />
         </Button>
         <Button
+          square
+          fill
           margin="5px 0 10px 0"
           onClick={() => {
             setCenter(defaultCenter);
@@ -650,8 +657,8 @@ function Main() {
           )}
       </MapContainer>
 
-      {/* SETTINGS SECTION */}
-      <Settings />
+      {/* CONTROLS SECTION */}
+      <Controls />
 
       {/* INFO SECTION */}
       <Info open={infoOpen} selectedData={selectedData} close={closeInfo} />

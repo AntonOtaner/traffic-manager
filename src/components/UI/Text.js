@@ -37,6 +37,15 @@ const StyledBodyText = styled.p`
   text-align: ${({ align }) => align && align};
 `;
 
+//General Text
+const StyledLabel = styled.label`
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--text);
+  margin: ${({ margin }) => margin && margin};
+  text-align: ${({ align }) => align && align};
+`;
+
 //Text Component
 const Text = (props) => {
   if (props.type === "title") {
@@ -47,6 +56,8 @@ const Text = (props) => {
     return <StyledBoldText {...props}>{props.children}</StyledBoldText>;
   } else if (props.type === "body") {
     return <StyledBodyText {...props}>{props.children}</StyledBodyText>;
+  } else if (props.type === "label") {
+    return <StyledLabel {...props}>{props.children}</StyledLabel>;
   } else {
     return <StyledBodyText {...props}>{props.children}</StyledBodyText>;
   }

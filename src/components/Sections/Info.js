@@ -60,7 +60,7 @@ function Info({ open, selectedData, close }) {
     <Container isOpen={open}>
       <Header>
         <Text type="title">{styledType} Information</Text>
-        <Button empty onClick={close}>
+        <Button square onClick={close}>
           <FontAwesomeIcon icon={faTimes} />
         </Button>
       </Header>

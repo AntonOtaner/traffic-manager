@@ -11,6 +11,7 @@ export default createGlobalStyle`
       --success: ${(props) => props.theme.colors.green};
       //Text
       --text: ${(props) => props.theme.colors.navyGreen};
+      --text-light: ${(props) => props.theme.colors.darkNavyGreen};
       //Shades
       --white: ${(props) => props.theme.colors.white};
       //Background
