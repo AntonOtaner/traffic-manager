@@ -6,9 +6,8 @@ const StyledTextField = styled.input`
   font-weight: 400;
   padding: 5px;
   border: 2px solid var(--border);
-  border-radius: 10px;
+  border-radius: 5px;
   background-color: var(--background);
-  margin-top: 5px;
   color: var(--text);
   transition: 0.1s all ease;
 

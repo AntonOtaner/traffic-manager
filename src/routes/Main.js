@@ -47,9 +47,9 @@ const MapContainer = styled.div`
 
   // Offline
   ${({ isOnline, initialLoading }) =>
-    (!isOnline || !initialLoading) &&
+    // (!isOnline || !initialLoading) &&
     css`
-      pointer-events: none;
+      //pointer-events: none;
       background-size: 56px 56px;
       background-image: linear-gradient(
           to right,
@@ -106,6 +106,30 @@ function Main() {
 
   const mapContainerRef = useRef(); //Map Ref to compute width and height
   const intervalId = useRef(); //setInterval ID of checkInternet in getShipData (used to cancel interval) (useRef since state does not need to update with it)
+
+  //NEW STATES
+  const [endpointURL, setEndpointURL] = useState(
+    localStorage.getItem("endpointURL") || "default"
+  );
+  const [mapType, setMapType] = useState(localStorage.getItem("mapType") || 3);
+
+  useEffect(() => {
+    localStorage.setItem("endpointURL", endpointURL);
+  }, [endpointURL]);
+
+  useEffect(() => {
+    localStorage.setItem("mapType", mapType);
+    //change how map looks (may need to be updated if google map updates)
+    if (initialLoading) {
+      mapContainerRef.current.children[1].children[0].children[0].style.backgroundColor =
+        "transparent";
+      mapContainerRef.current.children[1].children[0].children[0].children[0].children[0].children[0].style.opacity = 0;
+    }
+  }, [mapType, initialLoading]);
+
+  //Goal for today
+  //Work on showing grid map vs other map
+  //Work on url
 
   //Check for internet connection
   const checkInternet = useCallback(async () => {
@@ -658,7 +682,12 @@ function Main() {
       </MapContainer>
 
       {/* CONTROLS SECTION */}
-      <Controls />
+      <Controls
+        endpointURL={endpointURL}
+        setEndpointURL={setEndpointURL}
+        mapType={mapType}
+        setMapType={setMapType}
+      />
 
       {/* INFO SECTION */}
       <Info open={infoOpen} selectedData={selectedData} close={closeInfo} />

@@ -73,6 +73,11 @@ const Block = styled.div`
   padding: 5px 0;
 `;
 
+const TextFieldContainer = styled.div`
+  display: flex;
+  margin-top: 5px;
+`;
+
 const ToggleButtonContainer = styled.div`
   display: flex;
   justify-content: space-between;
@@ -109,8 +114,9 @@ const PlaybackButtonContainer = styled.div`
 //Whole Playback system
 
 //Information with project name at the bottom right of the screen
-function Controls() {
+const Controls = ({ endpointURL, setEndpointURL, mapType, setMapType }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [tempEndpointURL, setTempEndpointURL] = useState(endpointURL);
 
   return (
     <Container>
@@ -131,16 +137,52 @@ function Controls() {
             <Text type="label" htmlFor="endpointURL">
               API endpoint
             </Text>
-            <TextField id="endpointURL" placeholder="127.0.0.1" />
+            <TextFieldContainer>
+              <TextField
+                id="endpointURL"
+                placeholder="127.0.0.1"
+                value={tempEndpointURL}
+                style={{ flex: 1 }}
+                onChange={(e) => setTempEndpointURL(e.target.value)}
+              />
+              <Button
+                fill
+                margin="0 0 0 8px"
+                onClick={() => {
+                  setEndpointURL(tempEndpointURL);
+                  window.location.reload();
+                }}
+              >
+                Change URL
+              </Button>
+            </TextFieldContainer>
           </Block>
           <Block>
             <Text type="label" htmlFor="mapDisplay">
               Map Display
             </Text>
             <ToggleButtonContainer id="mapDisplay">
-              <Button padding="5px 18px">Grid</Button>
-              <Button padding="5px 18px">Static Map</Button>
-              <Button padding="5px 18px">Dynamic Map</Button>
+              <Button
+                fill={parseInt(mapType) === 1}
+                padding="5px 18px"
+                onClick={() => setMapType(1)}
+              >
+                Grid
+              </Button>
+              <Button
+                fill={parseInt(mapType) === 2}
+                padding="5px 18px"
+                onClick={() => setMapType(2)}
+              >
+                Static Map
+              </Button>
+              <Button
+                fill={parseInt(mapType) === 3}
+                padding="5px 18px"
+                onClick={() => setMapType(3)}
+              >
+                Dynamic Map
+              </Button>
             </ToggleButtonContainer>
           </Block>
           <Block>
@@ -175,7 +217,7 @@ function Controls() {
       </ControlsContainer>
     </Container>
   );
-}
+};
 
 //React.memo since does not need to update update (no props)
 export default React.memo(Controls);
