@@ -21,6 +21,7 @@ import Info from "../components/Sections/Info";
 import Source from "../components/Sections/Source";
 import Update from "../components/Sections/Update";
 import Controls from "../components/Sections/Controls";
+import GridMarks from "../components/Sections/GridMarks";
 
 //Data
 import { dummyData } from "../utils/data/dummyData";
@@ -72,9 +73,6 @@ const ButtonContainer = styled.div`
   z-index: 1;
 `;
 
-//TODO:
-//UI in app
-
 //Readme
 //grid line (long / lat) instead of offline map
 //offline map
@@ -82,6 +80,7 @@ const ButtonContainer = styled.div`
 //Textfield (readme add for change of data)
 //Rewind system
 //Timestamps
+//Simulation
 
 const reloadTime = 5; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
 
@@ -112,6 +111,7 @@ function Main() {
     localStorage.getItem("endpointURL") || "default"
   );
   const [mapType, setMapType] = useState(localStorage.getItem("mapType") || 3);
+  const [gridValues, setGridValues] = useState([[], []]);
 
   useEffect(() => {
     localStorage.setItem("endpointURL", endpointURL);
@@ -126,10 +126,6 @@ function Main() {
       mapContainerRef.current.children[1].children[0].children[0].children[0].children[0].children[0].style.opacity = 0;
     }
   }, [mapType, initialLoading]);
-
-  //Goal for today
-  //Work on showing grid map vs other map
-  //Work on url
 
   //Check for internet connection
   const checkInternet = useCallback(async () => {
@@ -146,9 +142,21 @@ function Main() {
     //If is online
     if (navigator.onLine) {
       //If can ping api (google.com for testing)
-      return await fetch("https://www.google.com/", {
-        mode: "no-cors",
-      })
+      return await fetch(
+        endpointURL === "default" ? "https://www.google.com/" : endpointURL,
+        {
+          mode: "no-cors",
+        }
+      )
+        .then((response) => {
+          console.log(response);
+          if (response.type === "opaque" || response.ok) {
+            console.log("success");
+          } else {
+            console.log("error1");
+            throw new Error("Something went wrong");
+          }
+        })
         .then(async () => {
           //Has Internet
           if (isOnline === false && !initialLoading) {
@@ -160,6 +168,7 @@ function Main() {
         })
         .catch(() => {
           //Does not have internet
+          console.log("error2");
           setIsOnline(false);
           return false;
         });
@@ -306,10 +315,40 @@ function Main() {
     }
   };
 
+  //New
+  const valueFromPercentage = (percentage, initial, final) => {
+    return percentage * (final - initial) + initial;
+  };
+
   //Update center and zoom when user moves map
-  const onMapsChange = ({ center, zoom }) => {
+  const onMapsChange = ({ center, zoom, bounds }) => {
     setCenter(center);
     //setZoom(zoom); //TODO
+
+    //Compute update grid marks
+    console.log(bounds);
+
+    let gridMarks = [
+      [
+        bounds.ne.lng.toFixed(5),
+        valueFromPercentage(0.25, bounds.ne.lng, bounds.sw.lng).toFixed(5),
+        valueFromPercentage(0.5, bounds.ne.lng, bounds.sw.lng).toFixed(5),
+        valueFromPercentage(0.75, bounds.ne.lng, bounds.sw.lng).toFixed(5),
+        bounds.sw.lng.toFixed(5),
+      ],
+      [
+        bounds.ne.lat.toFixed(5),
+        valueFromPercentage(0.75, bounds.sw.lat, bounds.ne.lat).toFixed(5),
+        valueFromPercentage(0.5, bounds.sw.lat, bounds.ne.lat).toFixed(5),
+        valueFromPercentage(0.25, bounds.sw.lat, bounds.ne.lat).toFixed(5),
+        bounds.sw.lat.toFixed(5),
+      ],
+    ];
+    setGridValues(gridMarks);
+
+    //get bounds
+
+    //Possibly compute upgrade grid size
   };
 
   //Update map center and position when info panel is closed
@@ -680,6 +719,9 @@ function Main() {
             </>
           )}
       </MapContainer>
+
+      {/* GRID MARKS SECTION */}
+      <GridMarks values={gridValues} />
 
       {/* CONTROLS SECTION */}
       <Controls
