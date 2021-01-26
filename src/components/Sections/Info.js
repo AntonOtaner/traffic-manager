@@ -76,6 +76,12 @@ function Info({ open, selectedData, close }) {
             {selectedData.id}{" "}
             {selectedData.isCenter && `(Own ${styledType.toString()})`}
           </Text>
+          <Text type="bold" margin="10px 0 5px">
+            Timestamp
+          </Text>
+          <Text type="body" margin="5px 0">
+            {new Date(selectedData.timestamp).toLocaleString()}
+          </Text>
         </Block>
         <StyledHr />
         {selectedData.type === "ship" && (

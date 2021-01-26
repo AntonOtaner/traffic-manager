@@ -69,11 +69,11 @@ const GridMarks = ({ values }) => {
   return (
     <>
       {/* X-Axis */}
-      <XLeft type="body">{values[0][0]}</XLeft>
-      <XLeftCenter type="body">{values[0][1]}</XLeftCenter>
+      <XLeft type="body">{values[0][4]}</XLeft>
+      <XLeftCenter type="body">{values[0][3]}</XLeftCenter>
       <XCenter type="body">{values[0][2]}</XCenter>
-      <XRightCenter type="body">{values[0][3]}</XRightCenter>
-      <XRight type="body">{values[0][4]}</XRight>
+      <XRightCenter type="body">{values[0][1]}</XRightCenter>
+      <XRight type="body">{values[0][0]}</XRight>
       {/* Y-Axis */}
       <YTop type="body">{values[1][0]}</YTop>
       <YTopCenter type="body">{values[1][1]}</YTopCenter>

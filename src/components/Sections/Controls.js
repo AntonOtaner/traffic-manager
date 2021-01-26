@@ -5,8 +5,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCog,
   faTimes,
-  faPlay,
-  faPause,
   faStepForward,
   faStepBackward,
   faFastForward,
@@ -114,7 +112,16 @@ const PlaybackButtonContainer = styled.div`
 //Whole Playback system
 
 //Information with project name at the bottom right of the screen
-const Controls = ({ endpointURL, setEndpointURL, mapType, setMapType }) => {
+const Controls = ({
+  endpointURL,
+  setEndpointURL,
+  mapType,
+  setMapType,
+  frameAmount,
+  frameTimestamp,
+  currentFrame,
+  setCurrentFrame,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [tempEndpointURL, setTempEndpointURL] = useState(endpointURL);
 
@@ -172,7 +179,7 @@ const Controls = ({ endpointURL, setEndpointURL, mapType, setMapType }) => {
               <Button
                 fill={parseInt(mapType) === 2}
                 padding="5px 18px"
-                onClick={() => setMapType(2)}
+                disabled
               >
                 Static Map
               </Button>
@@ -190,24 +197,63 @@ const Controls = ({ endpointURL, setEndpointURL, mapType, setMapType }) => {
               Playback
             </Text>
             <PlaybackContainer id="playback">
-              <Slider type="range" min="1" max="5" />
+              <Slider
+                type="range"
+                min={frameAmount === 1 ? 0 : 1}
+                max={frameAmount}
+                value={frameAmount - currentFrame}
+                onChange={(e) => {
+                  if (frameAmount !== 1) {
+                    setCurrentFrame(frameAmount - e.target.value);
+                  }
+                }}
+              />
               <Text type="other" margin="5px 0 10px">
-                Current time:
+                Current time: {new Date(frameTimestamp).toLocaleString()}
               </Text>
               <PlaybackButtonContainer>
-                <Button size="33px" margin="0 5px" square fill>
+                <Button
+                  size="33px"
+                  margin="0 5px"
+                  square
+                  fill
+                  onClick={() => setCurrentFrame(frameAmount - 1)}
+                >
                   <FontAwesomeIcon icon={faFastBackward} />
                 </Button>
-                <Button size="33px" margin="0 5px" square fill>
+                <Button
+                  size="33px"
+                  margin="0 5px"
+                  square
+                  fill
+                  onClick={() => {
+                    if (currentFrame + 1 <= frameAmount - 1) {
+                      setCurrentFrame(currentFrame + 1);
+                    }
+                  }}
+                >
                   <FontAwesomeIcon icon={faStepBackward} />
                 </Button>
-                <Button size="33px" margin="0 5px" square fill>
-                  <FontAwesomeIcon icon={faPause} />
-                </Button>
-                <Button size="33px" margin="0 5px" square fill>
+                <Button
+                  size="33px"
+                  margin="0 5px"
+                  square
+                  fill
+                  onClick={() => {
+                    if (currentFrame - 1 >= 0) {
+                      setCurrentFrame(currentFrame - 1);
+                    }
+                  }}
+                >
                   <FontAwesomeIcon icon={faStepForward} />
                 </Button>
-                <Button size="33px" margin="0 5px" square fill>
+                <Button
+                  size="33px"
+                  margin="0 5px"
+                  square
+                  fill
+                  onClick={() => setCurrentFrame(0)}
+                >
                   <FontAwesomeIcon icon={faFastForward} />
                 </Button>
               </PlaybackButtonContainer>

@@ -26,6 +26,7 @@ import GridMarks from "../components/Sections/GridMarks";
 //Data
 import { dummyData } from "../utils/data/dummyData";
 import { radiusData } from "../utils/data/radiusData";
+import { simulationData } from "../utils/data/simulationData";
 
 //Helper functions
 import { measure } from "../utils/helper/helper";
@@ -45,13 +46,16 @@ const MapContainer = styled.div`
   border: 5px solid var(--border);
   overflow: hidden;
   position: relative;
+  transition: all 0.4s ease;
 
   // Offline
-  ${({ isOnline, initialLoading }) =>
+  ${({ isOnline, initialLoading, zoom }) =>
     // (!isOnline || !initialLoading) &&
     css`
       //pointer-events: none;
-      background-size: 56px 56px;
+      background-size: calc(1200px / ${zoom ? 30 - zoom * 2.65 : "10"})
+        calc(1200px / ${zoom ? 30 - zoom * 2.65 : "10"});
+      background-position: center;
       background-image: linear-gradient(
           to right,
           var(--border) 0.5px,
@@ -74,13 +78,10 @@ const ButtonContainer = styled.div`
 `;
 
 //Readme
-//grid line (long / lat) instead of offline map
-//offline map
 //Offline (load things offline, show things offline)
-//Textfield (readme add for change of data)
-//Rewind system
-//Timestamps
-//Simulation
+//Textfield
+//Simulation data
+//polish
 
 const reloadTime = 5; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
 
@@ -113,6 +114,10 @@ function Main() {
   const [mapType, setMapType] = useState(localStorage.getItem("mapType") || 3);
   const [gridValues, setGridValues] = useState([[], []]);
 
+  const maxAmount = 25;
+  const [currentFrame, setCurrentFrame] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
   useEffect(() => {
     localStorage.setItem("endpointURL", endpointURL);
   }, [endpointURL]);
@@ -121,9 +126,16 @@ function Main() {
     localStorage.setItem("mapType", mapType);
     //change how map looks (may need to be updated if google map updates)
     if (initialLoading) {
-      mapContainerRef.current.children[1].children[0].children[0].style.backgroundColor =
-        "transparent";
-      mapContainerRef.current.children[1].children[0].children[0].children[0].children[0].children[0].style.opacity = 0;
+      console.log("MapType " + mapType);
+      if (parseInt(mapType) === 1) {
+        mapContainerRef.current.children[1].children[0].children[0].style.backgroundColor =
+          "transparent";
+        mapContainerRef.current.children[1].children[0].children[0].children[0].children[0].children[0].style.opacity = 0;
+      } else if (parseInt(mapType) === 3) {
+        mapContainerRef.current.children[1].children[0].children[0].style.backgroundColor =
+          "var(--background)";
+        mapContainerRef.current.children[1].children[0].children[0].children[0].children[0].children[0].style.opacity = 1;
+      }
     }
   }, [mapType, initialLoading]);
 
@@ -180,37 +192,68 @@ function Main() {
   }, [isOnline, initialLoading]);
 
   //Get new ship data by updating coordinates a small amount
-  const getNewShipData = async () => {
+  const getNewShipData = async (prevShipData) => {
+    //Simulation mode
+    if (endpointURL === "simulation") {
+      //advance frame
+      setCurrentFrame((oldFrame) => {
+        console.log("Curernt fram" + oldFrame);
+        if (oldFrame - 1 >= 0) {
+          return oldFrame - 1;
+        } else {
+          return oldFrame;
+        }
+      });
+
+      return prevShipData;
+    }
+
     //check internet
     if (await checkInternet(null, true)) {
       //Update positions of ships
       const newShipData = {};
-      for (const key in shipData) {
-        newShipData[key] = shipData[key];
-        if (shipData[key].type === "ship") {
-          if (shipData[key].direction >= 180) {
+
+      for (const key in prevShipData[0]) {
+        newShipData[key] = JSON.parse(JSON.stringify(prevShipData[0][key]));
+        //Update timestamp
+        newShipData[key].timestamp = Date.now();
+        if (prevShipData[0][key].type === "ship") {
+          if (prevShipData[0][key].direction >= 180) {
             newShipData[key].position = {
               lat:
-                shipData[key].position.lat +
+                prevShipData[0][key].position.lat +
                 (Math.floor(Math.random() * 20) - 10) / 1000,
               lng:
-                shipData[key].position.lng -
+                prevShipData[0][key].position.lng -
                 Math.floor(Math.random() * 10 + 1) / 1000,
             };
           } else {
             newShipData[key].position = {
               lat:
-                shipData[key].position.lat +
+                prevShipData[0][key].position.lat +
                 (Math.floor(Math.random() * 20) - 10) / 1000,
               lng:
-                shipData[key].position.lng +
+                prevShipData[0][key].position.lng +
                 Math.floor(Math.random() * 10 + 1) / 1000,
             };
           }
         }
       }
-      setShipData(newShipData);
-      return newShipData;
+
+      console.log(prevShipData);
+      console.log(prevShipData.length);
+      console.log(maxAmount);
+
+      if (prevShipData.length === maxAmount) {
+        console.log("In here");
+        setShipData([newShipData, ...prevShipData.slice(0, -1)]);
+        return [newShipData, ...prevShipData.slice(0, -1)];
+      } else {
+        setShipData([newShipData, ...prevShipData.slice()]);
+        return [newShipData, ...prevShipData.slice()];
+      }
+
+      //return newShipData;
     } else {
       setStatusText("No internet connection, will try again in 60 seconds");
       //return null representing false (code stops here)
@@ -218,8 +261,13 @@ function Main() {
     }
   };
 
+  useEffect(() => {
+    console.log("it updated");
+    console.log(shipData);
+  }, [shipData]);
+
   //Update data every minute
-  const updateLoading = (internetCheck) => {
+  const updateLoading = (internetCheck, prevShipData) => {
     //Update status
     if (!internetCheck) {
       setStatusText("Synched");
@@ -235,15 +283,15 @@ function Main() {
       setTimeout(async () => {
         //Need variable to prevent extra rerender with Hooks
         //const shipData = await getShipData(); //get new Ship Data (uncomment during production)
-        const shipData = await getNewShipData(); //show small movements for testing
+        const shipData = await getNewShipData(prevShipData); //show small movements for testing
         //if API returns proper data
         if (shipData) {
-          await loadMaps(shipData, false); //Loap Map with new Ship Data
-          updateLoading(false); //restart loop
+          await loadMaps(shipData[0], false); //Loap Map with new Ship Data
+          updateLoading(false, shipData); //restart loop
         } else {
-          updateLoading(true); //skip updates loop
+          updateLoading(true, prevShipData); //skip updates loop
         }
-      }, 1000);
+      }, 500);
     }, reloadTime * 1000);
   };
 
@@ -301,6 +349,8 @@ function Main() {
         setCenter(center);
         setZoom(zoom);
       }
+      console.log("DONE");
+
       setDefaultCenter(center);
       setDefaultZoom(zoom);
     }
@@ -308,10 +358,11 @@ function Main() {
 
   //When map is finished loading tiles (will only load if map is online)
   const finsihedLoading = () => {
+    console.log("FINITO");
     //only run on initial load
     if (!initialLoading) {
       setInitialLoading(true); //initial load is done
-      updateLoading(false); //Call function to update data every minute
+      updateLoading(false, shipData); //Call function to update data every minute
     }
   };
 
@@ -326,8 +377,6 @@ function Main() {
     //setZoom(zoom); //TODO
 
     //Compute update grid marks
-    console.log(bounds);
-
     let gridMarks = [
       [
         bounds.ne.lng.toFixed(5),
@@ -367,7 +416,7 @@ function Main() {
   const openInfoContainer = useCallback(
     (event) => {
       //get data from item selected
-      const data = shipData[event.target.dataset["id"]];
+      const data = shipData[currentFrame][event.target.dataset["id"]];
       setInfoOpen(true);
       setSelectedData(data);
       setCenter({
@@ -376,20 +425,49 @@ function Main() {
       });
       setZoom(defaultZoom + 1);
     },
-    [shipData, defaultZoom]
+    [shipData, defaultZoom, currentFrame]
   );
 
   //Get Ship Data from API
   const getShipData = useCallback(async () => {
     //check internet
     if (!initialLoading) {
+      //Simulation mode
+      if (endpointURL === "simulation") {
+        //polish data by tranform array to JSON
+        const polishedArray = [];
+        for (let i = 0; i < simulationData.length; i++) {
+          const polishedData = {};
+          for (let j = 0; j < simulationData[i].length; j++) {
+            polishedData[simulationData[i][j].id] = simulationData[i][j];
+            //Add timestamp if not present
+            if (!polishedData[simulationData[i][j].id].timestamp) {
+              polishedData[simulationData[i][j].id].timestamp = Date.now(); // add fake time
+            }
+          }
+          polishedArray.unshift(polishedData);
+        }
+        console.log("SET");
+        console.log(polishedArray);
+        console.log(simulationData.length - 1);
+        setShipData(polishedArray);
+        setCurrentFrame(simulationData.length - 1); //length
+        setIsOnline(true);
+        return polishedArray[0];
+      }
+
       if (await checkInternet()) {
         //polish data by tranform array to JSON
         const polishedData = {};
         for (let i = 0; i < dummyData.length; i++) {
           polishedData[dummyData[i].id] = dummyData[i];
+          //Add timestamp if not present
+          if (!polishedData[dummyData[i].id].timestamp) {
+            polishedData[dummyData[i].id].timestamp = Date.now();
+          }
         }
-        setShipData(polishedData);
+        console.log("SET");
+        setShipData([polishedData]);
         return polishedData;
       } else {
         setStatusText("No internet connection, will try again in 60 seconds");
@@ -406,8 +484,10 @@ function Main() {
     (async function () {
       //Need variable to prevent extra rerender with Hooks
       const shipData = await getShipData(); //get ship data
+      console.log("OUT");
       //if API returns proper data
       if (shipData) {
+        console.log("IN");
         await loadMaps(shipData, true); //Loap map with new ship data
       }
     })();
@@ -418,26 +498,26 @@ function Main() {
 
   //get radius widths when zoom or shipData updates
   useEffect(() => {
-    if (shipData && zoom) {
+    if (shipData[currentFrame] && zoom) {
       const circleData = {};
-      let shipKeys = Object.keys(shipData); //get id's
+      let shipKeys = Object.keys(shipData[currentFrame]); //get id's
 
       for (let i = 0; i < shipKeys.length; i++) {
         //only add radiuses to ships
-        if (shipData[shipKeys[i]].type === "ship") {
+        if (shipData[currentFrame][shipKeys[i]].type === "ship") {
           for (const rad in radiusData) {
             //convert radius to width and height
             const { w, h } = meters2ScreenPixels(
               radiusData[rad] * 1000 * 2,
               {
-                lat: shipData[shipKeys[i]].position.lat,
-                lng: shipData[shipKeys[i]].position.lng,
+                lat: shipData[currentFrame][shipKeys[i]].position.lat,
+                lng: shipData[currentFrame][shipKeys[i]].position.lng,
               },
               zoom
             );
 
-            circleData[shipData[shipKeys[i]].id] = {
-              ...circleData[shipData[shipKeys[i]].id],
+            circleData[shipData[currentFrame][shipKeys[i]].id] = {
+              ...circleData[shipData[currentFrame][shipKeys[i]].id],
               [rad]: {
                 width: w,
                 height: h,
@@ -449,25 +529,29 @@ function Main() {
 
       setCircles(circleData);
     }
-  }, [zoom, shipData]);
+  }, [zoom, shipData, currentFrame]);
 
   //get connections widths when zoom or shipData updates
   useEffect(() => {
     if (shipData && zoom) {
       const allConnetions = [];
 
-      for (const key in shipData) {
-        for (const type in shipData[key].connections) {
-          for (let i = 0; i < shipData[key].connections[type].length; i++) {
+      for (const key in shipData[currentFrame]) {
+        for (const type in shipData[currentFrame][key].connections) {
+          for (
+            let i = 0;
+            i < shipData[currentFrame][key].connections[type].length;
+            i++
+          ) {
             let initialShipKey = "";
             let toShipKey = "";
 
             if (type === "receiving") {
-              initialShipKey = shipData[key].connections[type][i];
+              initialShipKey = shipData[currentFrame][key].connections[type][i];
               toShipKey = key;
             } else {
               initialShipKey = key;
-              toShipKey = shipData[key].connections[type][i];
+              toShipKey = shipData[currentFrame][key].connections[type][i];
             }
 
             //check if connection already exists
@@ -482,22 +566,22 @@ function Main() {
             const bounds = {
               nw: {
                 lat: Math.max(
-                  shipData[initialShipKey].position.lat,
-                  shipData[toShipKey].position.lat
+                  shipData[currentFrame][initialShipKey].position.lat,
+                  shipData[currentFrame][toShipKey].position.lat
                 ),
                 lng: Math.min(
-                  shipData[initialShipKey].position.lng,
-                  shipData[toShipKey].position.lng
+                  shipData[currentFrame][initialShipKey].position.lng,
+                  shipData[currentFrame][toShipKey].position.lng
                 ),
               },
               se: {
                 lat: Math.min(
-                  shipData[initialShipKey].position.lat,
-                  shipData[toShipKey].position.lat
+                  shipData[currentFrame][initialShipKey].position.lat,
+                  shipData[currentFrame][toShipKey].position.lat
                 ),
                 lng: Math.max(
-                  shipData[initialShipKey].position.lng,
-                  shipData[toShipKey].position.lng
+                  shipData[currentFrame][initialShipKey].position.lng,
+                  shipData[currentFrame][toShipKey].position.lng
                 ),
               },
             };
@@ -510,10 +594,10 @@ function Main() {
             const { center } = fitBounds(bounds, size);
             //get height (coordinate distance to meters)
             const height = measure(
-              shipData[initialShipKey].position.lat,
-              shipData[initialShipKey].position.lng,
-              shipData[toShipKey].position.lat,
-              shipData[initialShipKey].position.lng
+              shipData[currentFrame][initialShipKey].position.lat,
+              shipData[currentFrame][initialShipKey].position.lng,
+              shipData[currentFrame][toShipKey].position.lat,
+              shipData[currentFrame][initialShipKey].position.lng
             );
             const { h: screenHeight } = meters2ScreenPixels(
               height,
@@ -522,10 +606,10 @@ function Main() {
             );
             //get width  (coordinate distance to meters)
             const width = measure(
-              shipData[initialShipKey].position.lat,
-              shipData[initialShipKey].position.lng,
-              shipData[initialShipKey].position.lat,
-              shipData[toShipKey].position.lng
+              shipData[currentFrame][initialShipKey].position.lat,
+              shipData[currentFrame][initialShipKey].position.lng,
+              shipData[currentFrame][initialShipKey].position.lat,
+              shipData[currentFrame][toShipKey].position.lng
             );
             const { w: screenWidth } = meters2ScreenPixels(width, center, zoom);
 
@@ -541,7 +625,7 @@ function Main() {
 
             if (
               JSON.stringify(bounds["nw"]) ===
-              JSON.stringify(shipData[initialShipKey].position)
+              JSON.stringify(shipData[currentFrame][initialShipKey].position)
             ) {
               //Top left is initital ship
               //diagonal is type 1 and direction is type 1
@@ -549,20 +633,24 @@ function Main() {
               direction = 1;
             } else if (
               JSON.stringify(bounds["nw"]) ===
-              JSON.stringify(shipData[toShipKey].position)
+              JSON.stringify(shipData[currentFrame][toShipKey].position)
             ) {
               //Top left is other ship
               //diagonal is type 1 and direction is type 2
               diagonal = 1;
               direction = 2;
             } else if (
-              bounds["nw"].lat === shipData[initialShipKey].position.lat
+              bounds["nw"].lat ===
+              shipData[currentFrame][initialShipKey].position.lat
             ) {
               //Top right is initial ship
               //diagonal is type 2 and direction is type 1
               diagonal = 2;
               direction = 1;
-            } else if (bounds["nw"].lat === shipData[toShipKey].position.lat) {
+            } else if (
+              bounds["nw"].lat ===
+              shipData[currentFrame][toShipKey].position.lat
+            ) {
               //Top right is other ship
               //diagonal is type 2 and direction is type 2
               diagonal = 2;
@@ -584,7 +672,7 @@ function Main() {
 
       setConnections(allConnetions);
     }
-  }, [zoom, shipData]);
+  }, [zoom, shipData, currentFrame]);
 
   //Zoom and center controls placed in used memo to avoid useless rerenders
   const MapButtons = useMemo(() => {
@@ -634,6 +722,7 @@ function Main() {
         ref={mapContainerRef}
         isOnline={isOnline}
         initialLoading={initialLoading}
+        zoom={zoom}
       >
         {center &&
           zoom &&
@@ -650,21 +739,23 @@ function Main() {
                 onChange={onMapsChange}
               >
                 {/* START PLACING OBJECTS ON MAP */}
-                {Object.keys(shipData).map((item) => {
-                  if (shipData[item].type === "ship") {
+                {Object.keys(shipData[currentFrame]).map((item) => {
+                  if (shipData[currentFrame][item].type === "ship") {
                     return (
                       <Ship
                         onClick={openInfoContainer}
-                        direction={shipData[item].direction}
+                        direction={shipData[currentFrame][item].direction}
                         isConnected={Boolean(
-                          shipData[item].connections.receiving.length +
-                            shipData[item].connections.providing.length
+                          shipData[currentFrame][item].connections.receiving
+                            .length +
+                            shipData[currentFrame][item].connections.providing
+                              .length
                         )}
-                        isCenter={shipData[item].isCenter}
+                        isCenter={shipData[currentFrame][item].isCenter}
                         isSelected={selectedData.id === item}
                         data-id={item}
-                        key={`ship-${shipData[item].id}`}
-                        {...shipData[item].position}
+                        key={`ship-${shipData[currentFrame][item].id}`}
+                        {...shipData[currentFrame][item].position}
                       />
                     );
                   } else {
@@ -672,8 +763,8 @@ function Main() {
                       <Station
                         onClick={openInfoContainer}
                         data-id={item}
-                        key={`station-${shipData[item].id}`}
-                        {...shipData[item].position}
+                        key={`station-${shipData[currentFrame][item].id}`}
+                        {...shipData[currentFrame][item].position}
                       />
                     );
                   }
@@ -686,13 +777,15 @@ function Main() {
                           width={circles[item][rad].width}
                           height={circles[item][rad].height}
                           isConnected={Boolean(
-                            shipData[item].connections.receiving.length +
-                              shipData[item].connections.providing.length
+                            shipData[currentFrame][item].connections.receiving
+                              .length +
+                              shipData[currentFrame][item].connections.providing
+                                .length
                           )}
-                          isCenter={shipData[item].isCenter}
+                          isCenter={shipData[currentFrame][item].isCenter}
                           isSelected={selectedData.id === item}
-                          key={`radius-${rad}-${shipData[item].id}`}
-                          {...shipData[item].position}
+                          key={`radius-${rad}-${shipData[currentFrame][item].id}`}
+                          {...shipData[currentFrame][item].position}
                         />
                       );
                     });
@@ -707,8 +800,8 @@ function Main() {
                         diagonal={item.diagonal}
                         direction={item.direction}
                         isCenter={
-                          shipData[item.from].isCenter ||
-                          shipData[item.to].isCenter
+                          shipData[currentFrame][item.from].isCenter ||
+                          shipData[currentFrame][item.to].isCenter
                         }
                         key={`connection-${item.from}-${item.to}`}
                         {...item.center}
@@ -729,6 +822,16 @@ function Main() {
         setEndpointURL={setEndpointURL}
         mapType={mapType}
         setMapType={setMapType}
+        frameAmount={shipData.length}
+        frameTimestamp={
+          shipData[currentFrame] &&
+          shipData[currentFrame][Object.keys(shipData[currentFrame])[0]]
+            .timestamp
+        }
+        currentFrame={currentFrame}
+        setCurrentFrame={setCurrentFrame}
+        isPaused={isPaused}
+        setIsPaused={setIsPaused}
       />
 
       {/* INFO SECTION */}

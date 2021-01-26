@@ -310,7 +310,7 @@ export const googleMapsTheme = [
     elementType: "geometry",
     stylers: [
       {
-        color: "#0e1626",
+        color: "#0F1725",
       },
     ],
   },

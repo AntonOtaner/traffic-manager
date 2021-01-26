@@ -13,7 +13,8 @@ export const dummyData = [
       receiving: ["2638375"],
       providing: [],
     },
-    isCenter: true, //extra optional tag
+    //isCenter: true, //extra optional tag
+    //timestamp: 1611642848087, //extra optional tag
   },
   {
     id: "2638375",

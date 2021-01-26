@@ -13,6 +13,11 @@ const NormalButton = styled.button`
   color: var(--text);
   cursor: pointer;
 
+  &:disabled {
+    cursor: default;
+    filter: brightness(65%) !important;
+  }
+
   &:focus:enabled {
     outline: none;
   }
