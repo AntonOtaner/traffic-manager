@@ -18,11 +18,11 @@ The TMS (Traffic Manager System) front end is built with React.js and Google Map
 - Offline user controls
 
 ## How to run
-1. In the root directory run `npm install`
+1. In the root directory, run `npm install`
 2. Once all packages have installed, run `npm start`
 3. To build the project for production purposes, run `npm build`
 
 Note: npm can be replaced with yarn if desired. Make sure your node version is at leasst 10.0.0.
 
 ## Credits
-This is a project built for Ericsson by Anton Otaner in Janurary 2021, <antonethem@gmail.com>.
+This is a project built for Ericsson by [Anton Otaner](https://github.com/AntonOtaner) in Janurary 2021, <antonethem@gmail.com>.

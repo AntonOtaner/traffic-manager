@@ -37,5 +37,5 @@ function Source() {
   );
 }
 
-//React.memo since does not need to update update (no props)
+//React.memo since does not need to update (no props)
 export default React.memo(Source);

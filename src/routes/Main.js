@@ -1,7 +1,7 @@
 //Packages
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { fitBounds, meters2ScreenPixels } from "google-map-react";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlus,
@@ -30,6 +30,7 @@ import { simulationData } from "../utils/data/simulationData";
 
 //Helper functions
 import { measure } from "../utils/helper/helper";
+import { valueFromPercentage } from "../utils/helper/helper";
 
 //Styles for general component
 const Container = styled.div`
@@ -48,21 +49,20 @@ const MapContainer = styled.div`
   position: relative;
   transition: all 0.4s ease;
 
-  // Offline
-  ${({ isOnline, initialLoading, zoom }) =>
-    // (!isOnline || !initialLoading) &&
-    css`
-      //pointer-events: none;
-      background-size: calc(1200px / ${zoom ? 30 - zoom * 2.65 : "10"})
-        calc(1200px / ${zoom ? 30 - zoom * 2.65 : "10"});
-      background-position: center;
-      background-image: linear-gradient(
-          to right,
-          var(--border) 0.5px,
-          transparent 1px
-        ),
-        linear-gradient(to bottom, var(--border) 0.5px, transparent 1px);
-    `};
+  //Grid
+  pointer-events: ${({ isOnline, initialLoading }) =>
+    (!isOnline || !initialLoading) && "none"};
+  background-size: ${({ zoom }) =>
+    `calc(1200px / ${zoom ? 30 - zoom * 2.65 : "10"}) calc(1200px / ${
+      zoom ? 30 - zoom * 2.65 : "10"
+    })`};
+  background-position: center;
+  background-image: linear-gradient(
+      to right,
+      var(--border) 0.5px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, var(--border) 0.5px, transparent 1px);
 `;
 
 const ButtonContainer = styled.div`
@@ -77,12 +77,8 @@ const ButtonContainer = styled.div`
   z-index: 1;
 `;
 
-//Readme
-//Offline (load things offline, show things offline)
-//Textfield
-//polish
-
 const reloadTime = 5; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
+const maxAmount = 25; // max amount of frames to save
 
 //Container for the interactable part of the application
 function Main() {
@@ -103,40 +99,15 @@ function Main() {
   const [zoom, setZoom] = useState(); //current map zoom
   const [defaultZoom, setDefaultZoom] = useState(); //default map zoom based on bounds
 
-  const mapContainerRef = useRef(); //Map Ref to compute width and height
-  const intervalId = useRef(); //setInterval ID of checkInternet in getShipData (used to cancel interval) (useRef since state does not need to update with it)
-
-  //NEW STATES
   const [endpointURL, setEndpointURL] = useState(
     localStorage.getItem("endpointURL") || "default"
-  );
-  const [mapType, setMapType] = useState(localStorage.getItem("mapType") || 3);
-  const [gridValues, setGridValues] = useState([[], []]);
+  ); //URL to fetch data from or current mode
+  const [mapType, setMapType] = useState(localStorage.getItem("mapType") || 3); //map type where 1 is grid, 2 is static, and 3 is dynamic
+  const [gridValues, setGridValues] = useState([[], []]); //longitude and lattiude values for grid
+  const [currentFrame, setCurrentFrame] = useState(0); //current frame where 0 is the most recent and maxamount - 1 is oldest
 
-  const maxAmount = 25;
-  const [currentFrame, setCurrentFrame] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem("endpointURL", endpointURL);
-  }, [endpointURL]);
-
-  useEffect(() => {
-    localStorage.setItem("mapType", mapType);
-    //change how map looks (may need to be updated if google map updates)
-    if (initialLoading) {
-      console.log("MapType " + mapType);
-      if (parseInt(mapType) === 1) {
-        mapContainerRef.current.children[1].children[0].children[0].style.backgroundColor =
-          "transparent";
-        mapContainerRef.current.children[1].children[0].children[0].children[0].children[0].children[0].style.opacity = 0;
-      } else if (parseInt(mapType) === 3) {
-        mapContainerRef.current.children[1].children[0].children[0].style.backgroundColor =
-          "var(--background)";
-        mapContainerRef.current.children[1].children[0].children[0].children[0].children[0].children[0].style.opacity = 1;
-      }
-    }
-  }, [mapType, initialLoading]);
+  const mapContainerRef = useRef(); //Map Ref to compute width and height
+  const intervalId = useRef(); //setInterval ID of checkInternet in getShipData (used to cancel interval) (useRef since state does not need to update with it)
 
   //Check for internet connection
   const checkInternet = useCallback(async () => {
@@ -152,7 +123,8 @@ function Main() {
 
     //If is online
     if (navigator.onLine) {
-      //If can ping api (google.com for testing)
+      //If can ping api (google.com for default)
+      //TODO: endpointURL does not work with IP address
       return await fetch(
         endpointURL === "default" ? "https://www.google.com/" : endpointURL,
         {
@@ -160,11 +132,9 @@ function Main() {
         }
       )
         .then((response) => {
-          console.log(response);
           if (response.type === "opaque" || response.ok) {
-            console.log("success");
+            return;
           } else {
-            console.log("error1");
             throw new Error("Something went wrong");
           }
         })
@@ -179,7 +149,6 @@ function Main() {
         })
         .catch(() => {
           //Does not have internet
-          console.log("error2");
           setIsOnline(false);
           return false;
         });
@@ -188,7 +157,7 @@ function Main() {
       setIsOnline(false);
       return false;
     }
-  }, [isOnline, initialLoading]);
+  }, [isOnline, initialLoading, endpointURL]);
 
   //Get new ship data by updating coordinates a small amount
   const getNewShipData = async (prevShipData) => {
@@ -196,26 +165,24 @@ function Main() {
     if (endpointURL === "simulation") {
       //advance frame
       setCurrentFrame((oldFrame) => {
-        console.log("Curernt fram" + oldFrame);
         if (oldFrame - 1 >= 0) {
           return oldFrame - 1;
         } else {
           return oldFrame;
         }
       });
-
-      return prevShipData;
+      return prevShipData; // no need to update data, just frame
     }
 
     //check internet
     if (await checkInternet(null, true)) {
-      //Update positions of ships
       const newShipData = {};
 
       for (const key in prevShipData[0]) {
         newShipData[key] = JSON.parse(JSON.stringify(prevShipData[0][key]));
         //Update timestamp
         newShipData[key].timestamp = Date.now();
+        //Update positions
         if (prevShipData[0][key].type === "ship") {
           if (prevShipData[0][key].direction >= 180) {
             newShipData[key].position = {
@@ -239,31 +206,24 @@ function Main() {
         }
       }
 
-      console.log(prevShipData);
-      console.log(prevShipData.length);
-      console.log(maxAmount);
-
+      //maximize length of shipData
       if (prevShipData.length === maxAmount) {
-        console.log("In here");
-        setShipData([newShipData, ...prevShipData.slice(0, -1)]);
-        return [newShipData, ...prevShipData.slice(0, -1)];
+        const newData = [newShipData, ...prevShipData.slice(0, -1)];
+        setShipData(newData);
+        return newData;
       } else {
-        setShipData([newShipData, ...prevShipData.slice()]);
-        return [newShipData, ...prevShipData.slice()];
+        const newData = [newShipData, ...prevShipData.slice()];
+        setShipData(newData);
+        return newData;
       }
-
-      //return newShipData;
     } else {
-      setStatusText("No internet connection, will try again in 60 seconds");
+      setStatusText(
+        `No internet connection, will try again in ${reloadTime} seconds`
+      );
       //return null representing false (code stops here)
       return;
     }
   };
-
-  useEffect(() => {
-    console.log("it updated");
-    console.log(shipData);
-  }, [shipData]);
 
   //Update data every minute
   const updateLoading = (internetCheck, prevShipData) => {
@@ -348,7 +308,6 @@ function Main() {
         setCenter(center);
         setZoom(zoom);
       }
-      console.log("DONE");
 
       setDefaultCenter(center);
       setDefaultZoom(zoom);
@@ -357,7 +316,6 @@ function Main() {
 
   //When map is finished loading tiles (will only load if map is online)
   const finsihedLoading = () => {
-    console.log("FINITO");
     //only run on initial load
     if (!initialLoading) {
       setInitialLoading(true); //initial load is done
@@ -365,15 +323,9 @@ function Main() {
     }
   };
 
-  //New
-  const valueFromPercentage = (percentage, initial, final) => {
-    return percentage * (final - initial) + initial;
-  };
-
   //Update center and zoom when user moves map
-  const onMapsChange = ({ center, zoom, bounds }) => {
+  const onMapsChange = ({ center, bounds }) => {
     setCenter(center);
-    //setZoom(zoom); //TODO
 
     //Compute update grid marks
     let gridMarks = [
@@ -393,10 +345,6 @@ function Main() {
       ],
     ];
     setGridValues(gridMarks);
-
-    //get bounds
-
-    //Possibly compute upgrade grid size
   };
 
   //Update map center and position when info panel is closed
@@ -447,12 +395,9 @@ function Main() {
           }
           polishedArray.unshift(polishedData);
         }
-        console.log("SET");
-        console.log(polishedArray);
-        console.log(simulationData.length - 1);
         setShipData(polishedArray);
-        setCurrentFrame(simulationData.length - 1); //length
-        setIsOnline(true);
+        setCurrentFrame(simulationData.length - 1); //start from beginning
+        setIsOnline(true); //since internet connection is not important
         return polishedArray[0];
       }
 
@@ -466,19 +411,18 @@ function Main() {
             polishedData[dummyData[i].id].timestamp = Date.now();
           }
         }
-        console.log("SET");
         setShipData([polishedData]);
-        setIsOnline(true);
-
         return polishedData;
       } else {
-        setStatusText("No internet connection, will try again in 60 seconds");
+        setStatusText(
+          `No internet connection, will try again in ${reloadTime} seconds`
+        );
         intervalId.current = setInterval(checkInternet, reloadTime * 1000); //check for internet every 60 seconds
         //return null representing false (code stops here)
         return;
       }
     }
-  }, [checkInternet, initialLoading]);
+  }, [checkInternet, initialLoading, endpointURL]);
 
   //fetch data on inital load
   useEffect(() => {
@@ -486,10 +430,8 @@ function Main() {
     (async function () {
       //Need variable to prevent extra rerender with Hooks
       const shipData = await getShipData(); //get ship data
-      console.log("OUT");
       //if API returns proper data
       if (shipData) {
-        console.log("IN");
         await loadMaps(shipData, true); //Loap map with new ship data
       }
     })();
@@ -497,6 +439,30 @@ function Main() {
       clearInterval(intervalId.current);
     };
   }, [getShipData]);
+
+  //Update local storage when endpointURL is updated
+  useEffect(() => {
+    localStorage.setItem("endpointURL", endpointURL);
+  }, [endpointURL]);
+
+  //Update local storage when mapType is updated and change map display
+  useEffect(() => {
+    localStorage.setItem("mapType", mapType);
+    //change how map looks (may need to be updated if google map updates)
+    if (initialLoading) {
+      if (parseInt(mapType) === 1) {
+        //grid map
+        mapContainerRef.current.children[1].children[0].children[0].style.backgroundColor =
+          "transparent";
+        mapContainerRef.current.children[1].children[0].children[0].children[0].children[0].children[0].style.opacity = 0;
+      } else if (parseInt(mapType) === 3) {
+        //dynamic map
+        mapContainerRef.current.children[1].children[0].children[0].style.backgroundColor =
+          "var(--background)";
+        mapContainerRef.current.children[1].children[0].children[0].children[0].children[0].children[0].style.opacity = 1;
+      }
+    }
+  }, [mapType, initialLoading]);
 
   //get radius widths when zoom or shipData updates
   useEffect(() => {
@@ -826,8 +792,6 @@ function Main() {
         }
         currentFrame={currentFrame}
         setCurrentFrame={setCurrentFrame}
-        isPaused={isPaused}
-        setIsPaused={setIsPaused}
       />
 
       {/* INFO SECTION */}

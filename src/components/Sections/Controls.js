@@ -17,8 +17,6 @@ import Button from "../UI/Button";
 import TextField from "../UI/Textfield";
 
 //Styles
-const Container = styled.div``;
-
 const ButtonContainer = styled.div`
   position: absolute;
   right: ${({ isOpen }) => (isOpen ? "-100px" : "0px")};
@@ -109,9 +107,7 @@ const PlaybackButtonContainer = styled.div`
   justify-content: center;
 `;
 
-//Whole Playback system
-
-//Information with project name at the bottom right of the screen
+//Controls for the map
 const Controls = ({
   endpointURL,
   setEndpointURL,
@@ -122,16 +118,18 @@ const Controls = ({
   currentFrame,
   setCurrentFrame,
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [tempEndpointURL, setTempEndpointURL] = useState(endpointURL);
+  const [isOpen, setIsOpen] = useState(false); //true when panel is opened
+  const [tempEndpointURL, setTempEndpointURL] = useState(endpointURL); //temporary endpointURL so that main endpointURL does not change before ready
 
   return (
-    <Container>
+    <>
+      {/* Button to open the control panel */}
       <ButtonContainer isOpen={isOpen}>
         <Button square margin="0 0 0 2.5px" onClick={() => setIsOpen(!isOpen)}>
           <FontAwesomeIcon icon={faCog} />
         </Button>
       </ButtonContainer>
+      {/* Control Panel */}
       <ControlsContainer isOpen={isOpen}>
         <Header>
           <Text type="title">Controls</Text>
@@ -140,6 +138,7 @@ const Controls = ({
           </Button>
         </Header>
         <Body>
+          {/* EndpoinURL control */}
           <Block>
             <Text type="label" htmlFor="endpointURL">
               API endpoint
@@ -164,6 +163,7 @@ const Controls = ({
               </Button>
             </TextFieldContainer>
           </Block>
+          {/* Map display type control */}
           <Block>
             <Text type="label" htmlFor="mapDisplay">
               Map Display
@@ -192,6 +192,7 @@ const Controls = ({
               </Button>
             </ToggleButtonContainer>
           </Block>
+          {/* Playback control */}
           <Block>
             <Text type="label" htmlFor="playback">
               Playback
@@ -261,12 +262,9 @@ const Controls = ({
           </Block>
         </Body>
       </ControlsContainer>
-    </Container>
+    </>
   );
 };
 
-//React.memo since does not need to update update (no props)
+//React.memo since does not need to update whenever Main.js changes
 export default React.memo(Controls);
-
-//weird scroll
-//weird positioning

@@ -1,5 +1,5 @@
+// generally used geo measurement function
 export function measure(lat1, lon1, lat2, lon2) {
-  // generally used geo measurement function
   var R = 6378.137; // Radius of earth in KM
   var dLat = (lat2 * Math.PI) / 180 - (lat1 * Math.PI) / 180;
   var dLon = (lon2 * Math.PI) / 180 - (lon1 * Math.PI) / 180;
@@ -12,4 +12,9 @@ export function measure(lat1, lon1, lat2, lon2) {
   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   var d = R * c;
   return d * 1000; // meters
+}
+
+//value between 2 values based on percentage (60% between 1 and 2)
+export function valueFromPercentage(percentage, initial, final) {
+  return percentage * (final - initial) + initial;
 }
