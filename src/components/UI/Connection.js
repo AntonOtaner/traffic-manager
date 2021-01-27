@@ -14,7 +14,12 @@ const StyledSVG = styled.svg`
 const StyledPath = styled.path`
   fill: transparent;
   stroke-dasharray: 10;
-  stroke: ${({ isCenter }) => (isCenter ? "var(--success)" : "var(--white)")};
+  stroke: ${({ isCenter, isConnected }) =>
+    !isConnected
+      ? "var(--danger)"
+      : isCenter
+      ? "var(--success)"
+      : "var(--white)"};
   stroke-width: 2;
   transition: all 0.4s ease;
 
@@ -53,7 +58,15 @@ function getStrokeOffset(diagonal, direction) {
 }
 
 //Connection component between to objects on a map
-function Connection({ width, height, diagonal, direction, isCenter, ...rest }) {
+function Connection({
+  width,
+  height,
+  diagonal,
+  direction,
+  isCenter,
+  isConnected,
+  ...rest
+}) {
   return (
     <StyledSVG
       xmlns="http://www.w3.org/2000/svg"
@@ -69,6 +82,7 @@ function Connection({ width, height, diagonal, direction, isCenter, ...rest }) {
           diagonal={diagonal}
           direction={direction}
           isCenter={isCenter}
+          isConnected={isConnected}
         />
       ) : (
         <StyledPath
@@ -78,6 +92,7 @@ function Connection({ width, height, diagonal, direction, isCenter, ...rest }) {
           diagonal={diagonal}
           direction={direction}
           isCenter={isCenter}
+          isConnected={isConnected}
         />
       )}
     </StyledSVG>

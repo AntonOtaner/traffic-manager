@@ -80,7 +80,6 @@ const ButtonContainer = styled.div`
 //Readme
 //Offline (load things offline, show things offline)
 //Textfield
-//Simulation data
 //polish
 
 const reloadTime = 5; //time to reload data or to recheck for internet (outside of component since it does not need to be updated every rerender)
@@ -442,7 +441,8 @@ function Main() {
             polishedData[simulationData[i][j].id] = simulationData[i][j];
             //Add timestamp if not present
             if (!polishedData[simulationData[i][j].id].timestamp) {
-              polishedData[simulationData[i][j].id].timestamp = Date.now(); // add fake time
+              polishedData[simulationData[i][j].id].timestamp =
+                Date.now() + reloadTime * 1000 * i; // add extra time for each frame
             }
           }
           polishedArray.unshift(polishedData);
@@ -468,6 +468,8 @@ function Main() {
         }
         console.log("SET");
         setShipData([polishedData]);
+        setIsOnline(true);
+
         return polishedData;
       } else {
         setStatusText("No internet connection, will try again in 60 seconds");
@@ -745,12 +747,7 @@ function Main() {
                       <Ship
                         onClick={openInfoContainer}
                         direction={shipData[currentFrame][item].direction}
-                        isConnected={Boolean(
-                          shipData[currentFrame][item].connections.receiving
-                            .length +
-                            shipData[currentFrame][item].connections.providing
-                              .length
-                        )}
+                        isConnected={shipData[currentFrame][item].connected}
                         isCenter={shipData[currentFrame][item].isCenter}
                         isSelected={selectedData.id === item}
                         data-id={item}
@@ -776,12 +773,7 @@ function Main() {
                         <Circle
                           width={circles[item][rad].width}
                           height={circles[item][rad].height}
-                          isConnected={Boolean(
-                            shipData[currentFrame][item].connections.receiving
-                              .length +
-                              shipData[currentFrame][item].connections.providing
-                                .length
-                          )}
+                          isConnected={shipData[currentFrame][item].connected}
                           isCenter={shipData[currentFrame][item].isCenter}
                           isSelected={selectedData.id === item}
                           key={`radius-${rad}-${shipData[currentFrame][item].id}`}
@@ -799,6 +791,10 @@ function Main() {
                         height={item.height}
                         diagonal={item.diagonal}
                         direction={item.direction}
+                        isConnected={
+                          shipData[currentFrame][item.from].connected ||
+                          shipData[currentFrame][item.to].connected
+                        }
                         isCenter={
                           shipData[currentFrame][item.from].isCenter ||
                           shipData[currentFrame][item.to].isCenter

@@ -9,6 +9,7 @@ export const dummyData = [
       lat: 40.9,
       lng: -69.35,
     },
+    connected: true,
     connections: {
       receiving: ["2638375"],
       providing: [],
@@ -25,6 +26,7 @@ export const dummyData = [
       lat: 41.3,
       lng: -69.127445,
     },
+    connected: true,
     connections: {
       receiving: ["6548912"],
       providing: ["1235236"],
@@ -39,6 +41,7 @@ export const dummyData = [
       lat: 41.65,
       lng: -69.5,
     },
+    connected: true,
     connections: {
       receiving: ["5412354"],
       providing: ["2638375"],
@@ -65,6 +68,7 @@ export const dummyData = [
       lat: 41.6,
       lng: -67.9258,
     },
+    connected: false,
     connections: {
       receiving: [],
       providing: [],
