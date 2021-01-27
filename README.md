@@ -22,6 +22,8 @@ The TMS (Traffic Manager System) front end is built with React.js and Google Map
 2. Once all packages have installed, run `npm start`
 3. To build the project for production purposes, run `npm build`
 
+Currently, to use modes, you must either type "default" or "simulation" in the endpoint URL textfield in the control panel.
+
 Note: npm can be replaced with yarn if desired. Make sure your node version is at leasst 10.0.0.
 
 ## Credits
